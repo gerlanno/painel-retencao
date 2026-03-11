@@ -1,4 +1,4 @@
-from db_connections import get_atrix_connection
+from queries.db_connections import get_atrix_connection
 
 
 class ServicoRepository:

@@ -1,0 +1,6 @@
+[server]
+runOnSave = true
+port = 8503
+[logger]
+level = "info"
+messageFormat = "%(asctime)s %(message)s"

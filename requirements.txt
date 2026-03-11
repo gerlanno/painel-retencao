@@ -1,0 +1,7 @@
+mysql-connector-python==9.2.0
+psycopg2-binary==2.9.10
+PyMySQL==1.1.1
+pyodbc==5.2.0
+python-dotenv==1.0.1
+streamlit==1.42.0
+pandas==2.2.3

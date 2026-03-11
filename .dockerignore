@@ -1,0 +1,15 @@
+.venv/
+venv/
+.env
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.dockerignore
+node_modules/
+tests/
+.vscode/
+.idea/
+docs/
+mockdata_retencao.py
+wireframe_retencao.py

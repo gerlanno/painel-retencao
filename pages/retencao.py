@@ -170,9 +170,9 @@ if descontos:
         # Formatações Visuais
         df_desc["value"] = df_desc["value"].apply(lambda v: format_currency(v) if pd.notnull(v) else format_currency(0))
         if "datebegin" in df_desc.columns:
-            df_desc["datebegin"] = pd.to_datetime(df_desc["datebegin"]).dt.strftime("%d/%m/%Y")
+            df_desc["datebegin"] = pd.to_datetime(df_desc["datebegin"]).dt.strftime("%d/%m/%Y").fillna("-")      
         if "dateend" in df_desc.columns:
-            df_desc["dateend"] = pd.to_datetime(df_desc["dateend"]).dt.strftime("%d/%m/%Y")
+            df_desc["dateend"] = pd.to_datetime(df_desc["dateend"]).dt.strftime("%d/%m/%Y").fillna("-")
             
         df_desc_view = df_desc.rename(columns={
             "description": "Descrição",

@@ -147,7 +147,7 @@ else:
     # padrão: primeiro serviço
     servico_id = int(df_servicos.iloc[0]["servico_id"])
 
-painel = RetencaoService.get_painel_cliente(cnpj, servico_id)
+painel = RetencaoService.get_painel_cliente(cnpj_formatado, servico_id)
 
 servico = painel["servico_selecionado"]
 
@@ -365,7 +365,7 @@ else:
         "sla_horas",
         "departamento",
         "classificacao"
-    ]]
+    ]].copy()
 
     # Criar coluna de link para o Atrix
     base_url = "https://atrix.mobtelecom.com.br/controle/addonmodules.php?module=helpdesk#/app/ticket/"

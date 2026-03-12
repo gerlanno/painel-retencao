@@ -17,14 +17,14 @@ def get_base64_svg(path):
         data = f.read()
     return base64.b64encode(data).decode()
 
-st.set_page_config(page_title="Retenção de Clientes", layout="wide", initial_sidebar_state="collapsed", page_icon="assets/retencao.svg")
+st.set_page_config(page_title="Retenção de Clientes", layout="wide", initial_sidebar_state="collapsed", page_icon="assets/favicon.png")
 
 # Headline com Logo (HTML customizado para alinhamento perfeito)
-logo_b64 = get_base64_svg("assets/retencao.svg")
+logo_b64 = get_base64_svg("assets/retencao.png")
 st.markdown(
     f"""
     <div style="display: flex; align-items: flex-end; gap: 15px; margin-bottom: 20px;">
-        <img src="data:image/svg+xml;base64,{logo_b64}" width="55" style="margin-bottom: 5px;">
+        <img src="data:image/png;base64,{logo_b64}" width="55" style="margin-bottom: 5px;">
         <h1 style="margin: 0; padding: 0; font-size: 2.6rem; line-height: 1.2;">Retenção de Clientes</h1>
     </div>
     """,

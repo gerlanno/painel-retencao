@@ -3,7 +3,8 @@ import streamlit as st
 st.set_page_config(
     page_title="Painel de Retenção",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
+    page_icon="assets/favicon.png"
 )
 
 

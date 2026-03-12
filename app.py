@@ -6,5 +6,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+
 st.title("Painel de Retenção B2B")
 st.write("Selecione a página no menu lateral.")

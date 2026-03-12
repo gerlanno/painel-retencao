@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import base64
+import os
 
 from services.retencao_service import RetencaoService
 
@@ -8,9 +10,26 @@ def format_currency(value):
         return "R$ 0,00"
     return f"R$ {value:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
 
-st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
+def get_base64_svg(path):
+    if not os.path.exists(path):
+        return ""
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-st.title("Retenção de Clientes")
+st.set_page_config(page_title="Retenção de Clientes", layout="wide", initial_sidebar_state="collapsed", page_icon="assets/retencao.svg")
+
+# Headline com Logo (HTML customizado para alinhamento perfeito)
+logo_b64 = get_base64_svg("assets/retencao.svg")
+st.markdown(
+    f"""
+    <div style="display: flex; align-items: flex-end; gap: 15px; margin-bottom: 20px;">
+        <img src="data:image/svg+xml;base64,{logo_b64}" width="55" style="margin-bottom: 5px;">
+        <h1 style="margin: 0; padding: 0; font-size: 2.6rem; line-height: 1.2;">Retenção de Clientes</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 st.divider()
 
 # ==============================

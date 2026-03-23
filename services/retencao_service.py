@@ -198,7 +198,9 @@ class RetencaoService:
             if t90 is None:
                 t90 = 0
                 
-            if t90 == 0:
+            if s["domainstatus"] == "Cancelado":
+                s["saude"] = "-"
+            elif t90 == 0:
                 s["saude"] = "🟢"
             elif t90 <= 5:
                 s["saude"] = "🟡"

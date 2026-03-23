@@ -134,7 +134,17 @@ df_servicos_view = df_servicos_view.rename(columns={
 df_servicos_view["Serviço"] = df_servicos_view["Serviço"].astype(str)
 df_servicos_view["Valor"] = df_servicos_view["Valor"].apply(format_currency)
 
-# tabela selecionável de serviços (seleção nativa do Streamlit)
+# Ordenar por Status (Cancelado por último)
+df_servicos_view = df_servicos_view.sort_values(by="Status", ascending=True)
+
+# Estilo visual para serviços cancelados (vermelho e tachado)
+def highlight_canceled(row):
+    if row["Status"] == "Cancelado":
+        return ['color: #ff4b4b; text-decoration: line-through'] * len(row)
+    return [''] * len(row)
+
+
+styled_df = df_servicos_view.style.apply(highlight_canceled, axis=1)
 
 # instrução visual para seleção
 st.caption("⬅️ Selecione o serviço clicando na linha")
@@ -142,7 +152,7 @@ st.caption("⬅️ Selecione o serviço clicando na linha")
 # tabela selecionável de serviços (seleção nativa do Streamlit)
 
 event = st.dataframe(
-    df_servicos_view,
+    styled_df,
     use_container_width=True,
     hide_index=True,
     on_select="rerun",

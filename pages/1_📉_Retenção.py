@@ -59,6 +59,10 @@ cliente = painel["cliente"]
 
 segmento = cliente['segmento_nome'] if cliente.get('segmento_nome') else cliente['segmentid']
 
+financeiro_geral = painel.get("financeiro", {})
+total_faturas_geral = financeiro_geral.get("faturas_abertas", 0) if financeiro_geral else 0
+valor_aberto_geral = financeiro_geral.get("valor_aberto", 0) if financeiro_geral else 0
+
 st.markdown(
     f"""
 **Cliente:** {cliente['companyname']}  
@@ -73,6 +77,12 @@ font-weight:600;
 ">
 {segmento}
 </span>
+<br>
+<div style="font-size: 0.9em; padding: 10px; border-radius: 5px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); width: fit-content;">
+    <strong>Resumo Financeiro do Cliente:</strong><br>
+    • Total em aberto: <b>{format_currency(valor_aberto_geral)}</b><br>
+    • Faturas abertas: <b>{total_faturas_geral}</b>
+</div>
 """,
     unsafe_allow_html=True
 )
@@ -242,31 +252,46 @@ with col_diag:
             diagnostico["total_tickets"]
         )
 
-# ---------- Financeiro ----------
-
 with col_fin:
 
-    st.subheader("Financeiro")
+    st.subheader("Financeiro do Serviço")
+    
+    financeiro_sv = painel.get("financeiro_servico", {})
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
 
     with c1:
         st.metric(
             "Faturas abertas",
-            financeiro["faturas_abertas"]
+            financeiro_sv.get("faturas_abertas", 0)
         )
 
     with c2:
         st.metric(
-            "Valor em aberto",
-            format_currency(financeiro['valor_aberto'])
+            "Valor aberto",
+            format_currency(financeiro_sv.get("valor_aberto", 0))
         )
-
+        
     with c3:
         st.metric(
-            label="Última fatura",
-            value=str(financeiro["ultima_fatura"]) if financeiro["ultima_fatura"] else "-",           
+            "Dias atraso",
+            financeiro_sv.get("dias_atraso", 0)
         )
+
+    with c4:
+        st.metric(
+            label="Última fatura",
+            value=str(financeiro_sv.get("ultima_fatura", "-"))
+        )
+        
+    faturas_lista = financeiro_sv.get("faturas", [])
+    if faturas_lista:
+        with st.expander("💳 Lista de faturas do serviço"):
+            df_faturas = pd.DataFrame(faturas_lista)
+            df_faturas["Valor"] = df_faturas["Valor"].apply(format_currency)
+            st.dataframe(df_faturas, use_container_width=True, hide_index=True)
+    else:
+        st.info("Nenhuma fatura encontrada para este serviço.")
 
 st.divider()
 

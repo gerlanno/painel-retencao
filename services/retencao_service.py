@@ -106,6 +106,88 @@ class RetencaoService:
         servico_selecionado["descontos"] = descontos
         servico_selecionado["total_desconto"] = total_desconto
 
+        # 💲 Faturas do Serviço (API Atrix)
+        from datetime import datetime
+        hoje = datetime.now().date()
+        faturas_brutas = FinanceiroRepository.get_faturas_servico(servico_id)
+        
+        faturas_servico_abertas = 0
+        valor_servico_aberto = 0.0
+        dias_max_atraso = 0
+        datas_faturas = []
+        faturas_tratadas = []
+        
+        for f in faturas_brutas:
+            status_fatura = f.get("status", "")
+            
+            # Tratamento de valores para garantir formato correto
+            valor_float = 0.0
+            try:
+                valor_float = float(f.get("total", 0))
+            except ValueError:
+                pass
+                
+            duedate_str = f.get("duedate", "")
+            atraso_view = 0
+            
+            if status_fatura == "Unpaid":
+                faturas_servico_abertas += 1
+                valor_servico_aberto += valor_float
+                if duedate_str:
+                    try:
+                        duedate_dt = datetime.strptime(duedate_str, "%Y-%m-%d").date()
+                        atraso = (hoje - duedate_dt).days
+                        if atraso > dias_max_atraso:
+                            dias_max_atraso = atraso
+                        if atraso > 0:
+                            atraso_view = atraso
+                    except Exception:
+                        pass
+                        
+            # Guardar datas para descobrir a última fatura
+            date_str = f.get("date") or duedate_str
+            if date_str:
+                try:
+                    datas_faturas.append(datetime.strptime(date_str, "%Y-%m-%d").date())
+                except Exception:
+                    pass
+            
+            # Formatar itens da visualização (DETALHE tabela)
+            status_traduzido = "Paga" if status_fatura == "Paid" else ("Aberta" if status_fatura == "Unpaid" else ("Cancelada" if status_fatura == "Cancelled" else status_fatura))
+            
+            vencimento_view = ""
+            if duedate_str:
+                try:
+                    vencimento_view = datetime.strptime(duedate_str, "%Y-%m-%d").strftime("%d/%m")
+                except:
+                    vencimento_view = duedate_str
+                    
+            faturas_tratadas.append({
+                "vencimento_sort": duedate_str,
+                "Vencimento": vencimento_view,
+                "Valor": valor_float,
+                "Status": status_traduzido,
+                "Dias atraso": atraso_view
+            })
+            
+        # Ordenar decrescente pelo vencimento (para mostrar últimas no topo da tabela)
+        faturas_tratadas = sorted(faturas_tratadas, key=lambda x: str(x.get("vencimento_sort", "")), reverse=True)
+        # Remover a chave de ordenação
+        for f in faturas_tratadas:
+            if "vencimento_sort" in f:
+                del f["vencimento_sort"]
+
+        ultima_fatura_dt = max(datas_faturas) if datas_faturas else None
+        ultima_fatura_view = ultima_fatura_dt.strftime("%d/%m") if ultima_fatura_dt else "-"
+        
+        financeiro_servico = {
+            "faturas": faturas_tratadas,
+            "faturas_abertas": faturas_servico_abertas,
+            "valor_aberto": valor_servico_aberto,
+            "dias_atraso": dias_max_atraso,
+            "ultima_fatura": ultima_fatura_view
+        }
+
         # 🔄 Traduções e Formatações
         for s in servicos:
             s["domainstatus"] = traduzir_status(s["domainstatus"], STATUS_SERVICO)
@@ -188,7 +270,8 @@ class RetencaoService:
             "servico_selecionado": servico_selecionado,
             "diagnostico": diagnostico,
             "tickets": tickets,
-            "financeiro": financeiro
+            "financeiro": financeiro,
+            "financeiro_servico": financeiro_servico
         }
 
         return painel

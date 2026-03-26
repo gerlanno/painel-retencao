@@ -107,3 +107,33 @@ def classificar_motivo(motivo_texto):
                 return cluster
                 
     return "Outros"
+
+def format_sla(minutes):
+    """
+    Converte minutos em uma string formatada (Ex: 1d 4h 30m, 2h 15m ou 45m).
+    """
+    if minutes is None or minutes == "-":
+        return "-"
+    
+    try:
+        total_min = int(float(minutes))
+    except (ValueError, TypeError):
+        return str(minutes)
+
+    if total_min < 0:
+        return "0m"
+
+    days = total_min // 1440
+    remaining_min = total_min % 1440
+    hours = remaining_min // 60
+    mins = remaining_min % 60
+
+    parts = []
+    if days > 0:
+        parts.append(f"{days}d")
+    if hours > 0:
+        parts.append(f"{hours}h")
+    if mins > 0 or (days == 0 and hours == 0):
+        parts.append(f"{mins}m")
+
+    return " ".join(parts)

@@ -3,7 +3,7 @@ from repositories.servicos_cliente import ServicoRepository
 from repositories.tickets_repository import TicketRepository
 from repositories.financeiro_repository import FinanceiroRepository
 from repositories.diagnostico_repository import DiagnosticoRepository
-from configs.mapping import STATUS_SERVICO, STATUS_TICKET, traduzir_status, format_date, classificar_motivo
+from configs.mapping import STATUS_SERVICO, STATUS_TICKET, traduzir_status, format_date, classificar_motivo, format_sla
 
 
 class RetencaoService:
@@ -33,8 +33,8 @@ class RetencaoService:
             
         # 3. SLA (Se tem muito histórico demorado)
         sla = diagnostico.get("sla_90d", {})
-        sla_medio_str = str(sla.get("sla_medio_horas", "-")).replace("h", "")
-        if sla_medio_str.isdigit() and int(sla_medio_str) > 24:
+        sla_medio_minutos = sla.get("sla_medio_minutos")
+        if sla_medio_minutos is not None and float(sla_medio_minutos) > 1440:
             score += 20
             
         # 4. Financeiro
@@ -213,10 +213,10 @@ class RetencaoService:
             t["dateclosed"] = format_date(t["dateclosed"], include_time=True)
             
             # Formatar SLA do ticket individual
-            if t.get("sla_horas") is not None:
-                t["sla_horas"] = f"{int(t['sla_horas'])}h"
+            if t.get("sla_minutos") is not None:
+                t["sla_minutos"] = format_sla(t["sla_minutos"])
             else:
-                t["sla_horas"] = "-"
+                t["sla_minutos"] = "-"
                 
             # Tratar nulidades nos campos de apoio e classificar motivo
             motivo_sujo = t.get("motivo") or "Não especificado"
@@ -242,25 +242,26 @@ class RetencaoService:
             # Formatar para lista ordenada
             diagnostico["clusters_90d"] = [{"cluster": k, "total": v} for k, v in sorted(clusters_count.items(), key=lambda item: item[1], reverse=True)]
             
+            # 🚨 Mini Diagnóstico (Deve ser antes da formatação visual para usar valores numéricos)
+            diagnostico["mini_diagnostico"] = RetencaoService._gerar_mini_diagnostico(diagnostico, financeiro)
+
             # ⏱️ Formatação do SLA
             sla = diagnostico.get("sla_90d")
-            if sla and sla.get("sla_medio_horas") is not None:
-                sla["sla_medio_horas"] = f"{int(sla['sla_medio_horas'])}h"
-                sla["sla_max_horas"] = f"{int(sla['sla_max_horas'])}h"
+            if sla and sla.get("sla_medio_minutos") is not None:
+                sla["sla_medio_minutos"] = format_sla(sla["sla_medio_minutos"])
+                sla["sla_max_minutos"] = format_sla(sla["sla_max_minutos"])
                 
-                # Calcular porcentagem < 24h
+                # Calcular porcentagem < 24h (1440m)
                 total_resolvidos = sla.get("total_resolvidos_90d", 0)
-                resolvidos_24h = sla.get("resolvidos_24h_90d", 0)
+                resolvidos_1440m = sla.get("resolvidos_1440m_90d", 0)
                 if total_resolvidos > 0:
-                    pct = (resolvidos_24h / total_resolvidos) * 100
-                    sla["resolvidos_24h_pct"] = f"{pct:.1f}%"
+                    pct = (resolvidos_1440m / total_resolvidos) * 100
+                    sla["resolvidos_1440m_pct"] = f"{pct:.1f}%"
                 else:
-                    sla["resolvidos_24h_pct"] = "0%"
+                    sla["resolvidos_1440m_pct"] = "0%"
             else:
-                diagnostico["sla_90d"] = {"sla_medio_horas": "-", "sla_max_horas": "-", "resolvidos_24h_pct": "-"}
+                diagnostico["sla_90d"] = {"sla_medio_minutos": "-", "sla_max_minutos": "-", "resolvidos_1440m_pct": "-"}
             
-            # 🚨 Mini Diagnóstico
-            diagnostico["mini_diagnostico"] = RetencaoService._gerar_mini_diagnostico(diagnostico, financeiro)
         
         if financeiro:
             financeiro["ultima_fatura"] = format_date(financeiro["ultima_fatura"])

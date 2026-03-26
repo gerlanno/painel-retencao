@@ -1,13 +1,13 @@
 SELECT
-    AVG(TIMESTAMPDIFF(HOUR, date, dateclosed)) AS sla_medio_horas,
-    MAX(TIMESTAMPDIFF(HOUR, date, dateclosed)) AS sla_max_horas,
+    AVG(TIMESTAMPDIFF(MINUTE, date, dateclosed)) AS sla_medio_minutos,
+    MAX(TIMESTAMPDIFF(MINUTE, date, dateclosed)) AS sla_max_minutos,
     COUNT(*) AS total_resolvidos_90d,
     SUM(
         CASE
-            WHEN TIMESTAMPDIFF(HOUR, date, dateclosed) <= 24 THEN 1
+            WHEN TIMESTAMPDIFF(MINUTE, date, dateclosed) <= 1440 THEN 1
             ELSE 0
         END
-    ) AS resolvidos_24h_90d
+    ) AS resolvidos_1440m_90d
 FROM
     tbltickets
 WHERE

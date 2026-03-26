@@ -346,9 +346,9 @@ with col_sla:
     st.markdown("#### SLA de Resolução (90d)")
     if diagnostico and diagnostico.get("sla_90d"):
         sla = diagnostico["sla_90d"]
-        st.metric("SLA Médio", sla.get("sla_medio_horas", "-"))
-        st.metric("Pior SLA", sla.get("sla_max_horas", "-"))
-        st.metric("% Resolv. < 24h", sla.get("resolvidos_24h_pct", "-"))
+        st.metric("SLA Médio", sla.get("sla_medio_minutos", "-"))
+        st.metric("Pior SLA", sla.get("sla_max_minutos", "-"))
+        st.metric("% Resolv. < 24h", sla.get("resolvidos_1440m_pct", "-"))
     else:
         st.markdown("- Sem dados recentes")
 
@@ -397,7 +397,7 @@ else:
         "status",
         "date",
         "dateclosed",
-        "sla_horas",
+        "sla_minutos",
         "departamento",
         "classificacao"
     ]].copy()
@@ -415,7 +415,7 @@ else:
         "status": "Status",
         "date": "Abertura",
         "dateclosed": "Fechamento",
-        "sla_horas": "SLA",
+        "sla_minutos": "SLA",
         "departamento": "Departamento",
         "classificacao": "Encerramento"
     })

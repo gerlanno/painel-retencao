@@ -8,7 +8,7 @@ SELECT
     tr.title AS motivo,
     c.name AS classificacao,
     d.name AS departamento,
-    TIMESTAMPDIFF(HOUR, t.date, t.dateclosed) AS sla_horas
+    TIMESTAMPDIFF(MINUTE, t.date, t.dateclosed) AS sla_minutos
 FROM
     tbltickets t
     LEFT JOIN tbltickettyperequest tr ON tr.id = t.typerequestcurrent

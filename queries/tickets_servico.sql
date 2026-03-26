@@ -9,10 +9,14 @@ SELECT
     c.name AS classificacao,
     d.name AS departamento,
     TIMESTAMPDIFF(HOUR, t.date, t.dateclosed) AS sla_horas
-FROM tbltickets t
-LEFT JOIN tbltickettyperequest tr ON tr.id = t.typerequestcurrent
-LEFT JOIN tblticketcloseclassifications c ON c.id = t.closeclassificationid
-LEFT JOIN tblticketdepartments d ON d.id = t.did
-WHERE t.serviceid = %s
-ORDER BY t.date DESC
-LIMIT 50
+FROM
+    tbltickets t
+    LEFT JOIN tbltickettyperequest tr ON tr.id = t.typerequestcurrent
+    LEFT JOIN tblticketcloseclassifications c ON c.id = t.closeclassificationid
+    LEFT JOIN tblticketdepartments d ON d.id = t.did
+WHERE
+    t.serviceid = %s
+ORDER BY
+    t.date DESC
+LIMIT
+    50

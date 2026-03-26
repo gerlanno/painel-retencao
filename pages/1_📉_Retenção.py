@@ -162,10 +162,10 @@ event = st.dataframe(
 # determinar qual linha foi selecionada
 if event.selection.rows:
     selected_index = event.selection.rows[0]
-    servico_id = int(df_servicos.iloc[selected_index]["servico_id"])
+    servico_id = int(df_servicos_view.iloc[selected_index]["Serviço"])
 else:
     # padrão: primeiro serviço
-    servico_id = int(df_servicos.iloc[0]["servico_id"])
+    servico_id = int(df_servicos_view.iloc[0]["Serviço"])
 
 painel = RetencaoService.get_painel_cliente(cnpj_formatado, servico_id)
 

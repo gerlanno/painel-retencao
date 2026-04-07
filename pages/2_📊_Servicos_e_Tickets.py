@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import io
-from queries.db_connections import get_atrix_connection
+from services.servicos_service import ServicoService
+from services.tickets_service import TicketService
 
 st.set_page_config(page_title="Serviços e Tickets", layout="wide", page_icon="📊")
 
@@ -15,52 +16,15 @@ if not cliente_id_input:
     st.info("Informe um ID de cliente para analisar.")
     st.stop()
 
-query_path = "queries/serv_e_tickets_por_clientes.sql"
-
-def load_data(cliente_id):
-    try:
-        with open(query_path, 'r', encoding='utf-8') as file:
-            query = file.read()
-            
-        conn = get_atrix_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, (cliente_id,))
-        resultados = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return resultados
-    except Exception as e:
-        st.error(f"Erro ao executar a consulta: {e}")
-        return None
-
-query_tickets_path = "queries/tickets_por_cliente.sql"
-
-def load_tickets_data(cliente_id):
-    try:
-        with open(query_tickets_path, 'r', encoding='utf-8') as file:
-            query = file.read()
-            
-        conn = get_atrix_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, (cliente_id,))
-        resultados = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return resultados
-    except Exception as e:
-        st.error(f"Erro ao executar a consulta de tickets: {e}")
-        return None
-
 # Spinner nativo para indicar carregamento
 with st.spinner("Carregando dados..."):
-    dados = load_data(cliente_id_input)
+    df = ServicoService.get_servicos_tickets_df(cliente_id_input)
 
-if dados is not None:
-    if len(dados) == 0:
+if df is not None:
+    if df.empty:
         st.warning(f"Nenhum serviço/ticket encontrado para o cliente de ID: {cliente_id_input}.")
     else:
-        df = pd.DataFrame(dados)
-        st.success(f"Busca finalizada! {len(dados)} registro(s) encontrado(s).")
+        st.success(f"Busca finalizada! {len(df)} registro(s) encontrado(s).")
         
         st.markdown("### Serviços")
         
@@ -86,9 +50,8 @@ if dados is not None:
         st.divider()
         st.markdown("### Tickets")
         
-        tickets_dados = load_tickets_data(cliente_id_input)
-        if tickets_dados is not None:
-            df_tickets = pd.DataFrame(tickets_dados)
+        df_tickets = TicketService.get_tickets_por_cliente_df(cliente_id_input)
+        if df_tickets is not None:
             if not df_tickets.empty:
                 selected_rows = event.selection.rows
                 if selected_rows:

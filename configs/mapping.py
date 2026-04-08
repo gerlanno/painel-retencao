@@ -1,5 +1,14 @@
 from datetime import datetime, date
 
+def format_currency(value):
+    if value is None:
+        return "R$ 0,00"
+    try:
+        val_float = float(value)
+        return f"R$ {val_float:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+    except (ValueError, TypeError):
+        return str(value)
+
 def format_date(dt, include_time=False):
     """
     Converte um objeto de data/hora (ou string ISO) para o padrão brasileiro.

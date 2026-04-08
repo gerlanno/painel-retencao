@@ -4,11 +4,8 @@ import base64
 import os
 
 from services.retencao_service import RetencaoService
-
-def format_currency(value):
-    if value is None:
-        return "R$ 0,00"
-    return f"R$ {value:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+from services.ofertas_service import OfertasService
+from configs.mapping import format_currency
 
 def get_base64_svg(path):
     if not os.path.exists(path):
@@ -170,6 +167,39 @@ else:
 painel = RetencaoService.get_painel_cliente(cnpj_formatado, servico_id)
 
 servico = painel["servico_selecionado"]
+
+st.write("")
+with st.expander("💼 Booking de ofertas"):
+    try:
+        tabelas = OfertasService.get_tabelas_booking()
+        abas = st.tabs(["IP Connect GPON", "IP Connect Metro", "Lan to Lan", "Banda Larga IP Fixo"])
+        
+        with abas[0]:
+            info = tabelas.get("gpon", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+                
+        with abas[1]:
+            info = tabelas.get("metro", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+                
+        with abas[2]:
+            info = tabelas.get("lan_to_lan", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+                
+        with abas[3]:
+            info = tabelas.get("ip_fixo", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Erro ao carregar tabela de preços: {e}")
 
 st.divider()
 

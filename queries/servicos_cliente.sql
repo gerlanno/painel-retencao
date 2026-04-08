@@ -1,6 +1,8 @@
 SELECT
     h.id AS servico_id,
     h.designator AS designador,
+    h.notes,
+    h.obs,
     p.name AS plano,
     h.amount AS valor,
     h.billingcycle,

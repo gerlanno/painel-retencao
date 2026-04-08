@@ -197,6 +197,19 @@ with col4:
     st.write("Ativado em")
     st.write(f"**{servico['regdate']}**")
 
+st.write("")
+col_notes, col_obs = st.columns(2)
+with st.container(border=True):
+    with col_notes:
+        st.write("📝 **Notas**")
+        notas = servico.get('notes')
+        st.code(notas if notas else "Nenhuma anotação.", language="text")
+
+
+    with col_obs:
+        st.write("📝 **Observações**")
+        obs = servico.get('obs')
+        st.code(obs if obs else "Nenhuma observação.", language="text")
 
 descontos = servico.get("descontos", [])
 total_desconto = servico.get("total_desconto", 0)

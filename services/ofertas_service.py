@@ -70,3 +70,55 @@ class OfertasService:
         }
         
         return tabelas
+
+    @staticmethod
+    def get_tabelas_retencao():
+        """
+        Retorna as tabelas de retenção processadas, prontas para exibição na UI.
+        """
+        data = OfertasRepository.get_booking_retencao_data()
+        produtos = data.get("connection_products_retention", {})
+        
+        tabelas = {}
+        
+        # IP Connect GPON
+        gpon_data = produtos.get("ip_connect_gpon", {})
+        df_gpon = pd.DataFrame.from_dict(gpon_data.get("pricing", {}), orient="index").reset_index()
+        if not df_gpon.empty:
+            df_gpon = df_gpon.rename(columns={"index": "Banda", "fidelized": "Fidelizado", "12m": "12 Meses", "24m": "24 Meses"})
+            for col in ["Fidelizado", "12 Meses", "24 Meses"]:
+                if col in df_gpon.columns:
+                    df_gpon[col] = df_gpon[col].apply(format_currency)
+        tabelas["gpon"] = {
+            "unidade": gpon_data.get("unit", "Mbps"),
+            "df": df_gpon
+        }
+        
+        # IP Connect Metro
+        metro_data = produtos.get("ip_connect_metro", {})
+        df_metro = pd.DataFrame.from_dict(metro_data.get("pricing", {}), orient="index").reset_index()
+        if not df_metro.empty:
+            df_metro = df_metro.rename(columns={"index": "Banda", "fidelized": "Fidelizado", "12m": "12 Meses", "24m": "24 Meses"})
+            for col in ["Fidelizado", "12 Meses", "24 Meses"]:
+                if col in df_metro.columns:
+                    df_metro[col] = df_metro[col].apply(format_currency)
+        tabelas["metro"] = {
+            "unidade": metro_data.get("unit", "Mbps"),
+            "df": df_metro
+        }
+        
+        # Banda Larga IP Fixo
+        fixo_data = produtos.get("banda_larga_ip_fixo", {})
+        df_fixo = pd.DataFrame.from_dict(fixo_data.get("pricing", {}), orient="index").reset_index()
+        if not df_fixo.empty:
+            df_fixo = df_fixo.rename(columns={"index": "Banda", "download": "Download", "upload": "Upload", "price": "Preço", "phone_addon": "Adicional Telefone"})
+            if "Preço" in df_fixo.columns:
+                df_fixo["Preço"] = df_fixo["Preço"].apply(format_currency)
+            if "Adicional Telefone" in df_fixo.columns:
+                df_fixo["Adicional Telefone"] = df_fixo["Adicional Telefone"].apply(format_currency)
+        tabelas["ip_fixo"] = {
+            "unidade": fixo_data.get("unit", "Mbps"),
+            "df": df_fixo
+        }
+        
+        return tabelas

@@ -201,6 +201,33 @@ with st.expander("💼 Booking de ofertas"):
     except Exception as e:
         st.error(f"Erro ao carregar tabela de preços: {e}")
 
+st.write("")
+with st.expander("🤝 Booking de Retenção"):
+    try:
+        tabelas_ret = OfertasService.get_tabelas_retencao()
+        abas_ret = st.tabs(["IP Connect GPON", "IP Connect Metro", "Banda Larga IP Fixo"])
+        
+        with abas_ret[0]:
+            info = tabelas_ret.get("gpon", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+                
+        with abas_ret[1]:
+            info = tabelas_ret.get("metro", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+                
+        with abas_ret[2]:
+            info = tabelas_ret.get("ip_fixo", {})
+            st.caption(f"Unidade: {info.get('unidade', 'Mbps')}")
+            if "df" in info and not info["df"].empty:
+                st.dataframe(info["df"], use_container_width=True, hide_index=True)
+
+    except Exception as e:
+        st.error(f"Erro ao carregar tabela de retenção: {e}")
+
 st.divider()
 
 # ==============================
